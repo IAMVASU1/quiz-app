@@ -1,0 +1,287 @@
+{
+  "info": {
+    "name": "Quiz Backend - API Collection",
+    "_postman_id": "d3b2f1c2-quiz-backend",
+    "description": "Collection for testing Quiz backend (auth, users, quizzes, questions, attempts, upload).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (generic)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"testuser@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"student\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/register", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","register"] }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const token = json.token ?? json.data?.token ?? json.data?.token ?? json.data?.user?.token ?? null;",
+                  "  if (token) pm.environment.set('token', token);",
+                  "  pm.test('Status is 201 or 200', () => pm.response.code === 201 || pm.response.code === 200);",
+                  "} catch (e) { pm.test('response parseable', () => false); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"secret123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const token = json.token ?? json.data?.token ?? json.data?.token ?? json.data?.user?.token ?? null;",
+                  "  if (token) pm.environment.set('token', token);",
+                  "  pm.test('Status is 200', () => pm.response.code === 200);",
+                  "} catch (e) { pm.test('response parseable', () => false); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get my profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/users/me", "host": ["{{baseUrl}}"], "path": ["api","v1","users","me"] }
+          }
+        },
+        {
+          "name": "List users (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/users", "host": ["{{baseUrl}}"], "path": ["api","v1","users"] }
+          }
+        },
+        {
+          "name": "Update user (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"role\": \"faculty\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","users","{{userId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quizzes",
+      "item": [
+        {
+          "name": "Create quiz (faculty)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sample Quiz\",\n  \"description\": \"A small test quiz\",\n  \"type\": \"custom\",\n  \"settings\": { \"questionsCount\": 5, \"shuffleQuestions\": true }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/quizzes", "host": ["{{baseUrl}}"], "path": ["api","v1","quizzes"] }
+          }
+        },
+        {
+          "name": "List quizzes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/quizzes", "host": ["{{baseUrl}}"], "path": ["api","v1","quizzes"] }
+          }
+        },
+        {
+          "name": "Get quiz by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/quizzes/{{quizId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","quizzes","{{quizId}}"] }
+          }
+        },
+        {
+          "name": "Update quiz",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{ \"title\": \"Updated Quiz Title\" }" },
+            "url": { "raw": "{{baseUrl}}/api/v1/quizzes/{{quizId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","quizzes","{{quizId}}"] }
+          }
+        },
+        {
+          "name": "Archive (delete) quiz",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/quizzes/{{quizId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","quizzes","{{quizId}}"] }
+          }
+        },
+        {
+          "name": "Get quiz by code (join)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/quizzes/by-code/{{quizCode}}", "host": ["{{baseUrl}}"], "path": ["api","v1","quizzes","by-code","{{quizCode}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Questions",
+      "item": [
+        {
+          "name": "Create question (faculty)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"What is 2+2?\",\n  \"choices\": [{\"text\":\"3\"},{\"text\":\"4\"},{\"text\":\"5\"}],\n  \"correctChoiceId\": \"REPLACE_WITH_CHOICE_ID_AFTER_CREATION_OR_LETTER\",\n  \"difficulty\": \"easy\",\n  \"subject\": \"math\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/questions", "host": ["{{baseUrl}}"], "path": ["api","v1","questions"] }
+          }
+        },
+        {
+          "name": "List questions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/questions", "host": ["{{baseUrl}}"], "path": ["api","v1","questions"] }
+          }
+        },
+        {
+          "name": "Get question by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/questions/{{questionId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","questions","{{questionId}}"] }
+          }
+        },
+        {
+          "name": "Update question",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{ \"text\": \"Updated Q text\" }" },
+            "url": { "raw": "{{baseUrl}}/api/v1/questions/{{questionId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","questions","{{questionId}}"] }
+          }
+        },
+        {
+          "name": "Archive (delete) question",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/questions/{{questionId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","questions","{{questionId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attempts",
+      "item": [
+        {
+          "name": "Start attempt (student)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"quizCode\": \"{{quizCode}}\" }" },
+            "url": { "raw": "{{baseUrl}}/api/v1/attempts/start", "host": ["{{baseUrl}}"], "path": ["api","v1","attempts","start"] }
+          }
+        },
+        {
+          "name": "Submit attempt",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    { \"questionId\": \"{{questionId1}}\", \"choiceId\": \"{{choiceId1}}\" },\n    { \"questionId\": \"{{questionId2}}\", \"choiceId\": \"{{choiceId2}}\" }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/attempts/{{attemptId}}/submit", "host": ["{{baseUrl}}"], "path": ["api","v1","attempts","{{attemptId}}","submit"] }
+          }
+        },
+        {
+          "name": "Attempt history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/attempts/history", "host": ["{{baseUrl}}"], "path": ["api","v1","attempts","history"] }
+          }
+        },
+        {
+          "name": "Get attempt by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/attempts/{{attemptId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","attempts","{{attemptId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Upload",
+      "item": [
+        {
+          "name": "Upload Excel (faculty)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/upload/excel", "host": ["{{baseUrl}}"], "path": ["api","v1","upload","excel"] }
+          },
+          "description": "Use form-data key 'file'. Select a local .xlsx/.xls/.csv file in Postman UI."
+        }
+      ]
+    }
+  ]
+}
