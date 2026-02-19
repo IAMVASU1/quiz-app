@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { apiGetUserAttempts } from '../../api/attempts.api';
 import { apiGetQuizzesByCreator } from '../../api/quizzes.api';
 import { apiCountQuestionsByCreator } from '../../api/questions.api';
-import DashboardGraph from '../../components/admin/DashboardGraph'; // Reuse or create specific
+import DashboardGraph from '../../components/admin/DashboardGraph';
 import MotionContainer from '../../components/admin/MotionContainer';
-import { colors } from '../../constants/colors';
+import { adminTheme, getRolePalette } from '../../components/admin/theme';
+
+const { width } = Dimensions.get('window');
+const isMobile = width < 768;
 
 export default function UserDetailsScreen({ route }) {
     const { user } = route.params;
@@ -67,15 +70,17 @@ export default function UserDetailsScreen({ route }) {
 
     const renderProfileHeader = () => (
         <View style={styles.profileCard}>
+            <View style={[styles.profileGlow, { backgroundColor: `${getRolePalette(user.role).tone}26` }]} />
             <View style={styles.profileInfo}>
-                <View style={[styles.avatar, { backgroundColor: getRoleColor(user.role) }]}>
+                <View style={[styles.avatar, { backgroundColor: getRolePalette(user.role).tone }]}>
                     <Text style={styles.avatarText}>{user.name.charAt(0).toUpperCase()}</Text>
                 </View>
                 <View>
+                    <Text style={styles.userEyebrow}>{user.role.toUpperCase()}</Text>
                     <Text style={styles.userName}>{user.name}</Text>
                     <Text style={styles.userEmail}>{user.email}</Text>
-                    <View style={styles.roleBadge}>
-                        <Text style={styles.roleText}>{user.role}</Text>
+                    <View style={[styles.roleBadge, { backgroundColor: getRolePalette(user.role).soft }]}>
+                        <Text style={[styles.roleText, { color: getRolePalette(user.role).tone }]}>{user.role}</Text>
                     </View>
                 </View>
             </View>
@@ -104,34 +109,27 @@ export default function UserDetailsScreen({ route }) {
         </View>
     );
 
-    const getRoleColor = (role) => {
-        switch (role) {
-            case 'admin': return colors.primary[500];
-            case 'faculty': return colors.warning[500];
-            case 'student': return colors.success[500];
-            default: return colors.neutral[500];
-        }
-    };
-
     const renderTabs = () => (
         <View style={styles.tabs}>
             <TouchableOpacity
                 style={[styles.tab, activeTab === 'created' && styles.activeTab]}
                 onPress={() => setActiveTab('created')}
             >
+                <Ionicons name="document-text-outline" size={14} color={activeTab === 'created' ? '#FFFFFF' : adminTheme.textMuted} />
                 <Text style={[styles.tabText, activeTab === 'created' && styles.activeTabText]}>Quizzes Created</Text>
             </TouchableOpacity>
             <TouchableOpacity
                 style={[styles.tab, activeTab === 'joined' && styles.activeTab]}
                 onPress={() => setActiveTab('joined')}
             >
+                <Ionicons name="play-circle-outline" size={14} color={activeTab === 'joined' ? '#FFFFFF' : adminTheme.textMuted} />
                 <Text style={[styles.tabText, activeTab === 'joined' && styles.activeTabText]}>Quizzes Joined</Text>
             </TouchableOpacity>
         </View>
     );
 
     const renderContent = () => {
-        if (loading) return <ActivityIndicator size="large" color={colors.primary[500]} style={{ marginTop: 50 }} />;
+        if (loading) return <ActivityIndicator size="large" color={adminTheme.accent} style={{ marginTop: 50 }} />;
 
         if (user.role === 'student') {
             return (
@@ -174,13 +172,13 @@ export default function UserDetailsScreen({ route }) {
                         <Text style={styles.emptyText}>No records found.</Text>
                     ) : (
                         data.map((item, index) => (
-                            <View key={index} style={styles.listItem}>
+                            <View key={index} style={[styles.listItem, index % 2 === 1 && styles.listItemAlt]}>
                                 <Text style={styles.itemTitle}>
                                     {showCreated ? item.title : (item.metadata?.quizSnapshot?.title || 'Quiz')}
                                 </Text>
                                 <View style={styles.itemRight}>
                                     {showCreated ? (
-                                        <Text style={[styles.statusBadge, { color: item.status === 'published' ? colors.success[600] : colors.warning[600] }]}>
+                                        <Text style={[styles.statusBadge, { color: item.status === 'published' ? adminTheme.success : adminTheme.warning }]}>
                                             {item.status}
                                         </Text>
                                     ) : (
@@ -214,125 +212,161 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     profileCard: {
-        backgroundColor: colors.surface,
-        borderRadius: 16,
-        padding: 24,
-        flexDirection: 'row',
+        backgroundColor: 'rgba(255,255,255,0.97)',
+        borderRadius: 22,
+        padding: 20,
+        flexDirection: isMobile ? 'column' : 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 24,
-        shadowColor: colors.neutral[900],
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 15,
-        elevation: 2,
+        alignItems: isMobile ? 'flex-start' : 'center',
+        marginBottom: 18,
+        borderWidth: 1,
+        borderColor: '#DDE5F7',
+        shadowColor: adminTheme.shadow,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 18,
+        elevation: 5,
+        overflow: 'hidden',
+    },
+    profileGlow: {
+        position: 'absolute',
+        width: 180,
+        height: 180,
+        borderRadius: 90,
+        top: -90,
+        right: -70,
     },
     profileInfo: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     avatar: {
-        width: 64,
-        height: 64,
-        borderRadius: 20, // slightly more square
+        width: 72,
+        height: 72,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 16,
+        shadowColor: '#1A3674',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.26,
+        shadowRadius: 12,
+        elevation: 6,
     },
     avatarText: {
         fontSize: 24,
-        fontWeight: 'bold',
+        fontWeight: '800',
         color: '#FFFFFF',
     },
+    userEyebrow: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: adminTheme.textMuted,
+        letterSpacing: 1,
+        marginBottom: 4,
+    },
     userName: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.neutral[900],
+        fontSize: 26,
+        fontWeight: '800',
+        color: adminTheme.title,
     },
     userEmail: {
         fontSize: 14,
-        color: colors.neutral[500],
+        color: adminTheme.textMuted,
     },
     roleBadge: {
-        backgroundColor: colors.neutral[100],
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 4,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 999,
         alignSelf: 'flex-start',
-        marginTop: 4,
+        marginTop: 8,
     },
     roleText: {
         fontSize: 12,
-        color: colors.neutral[600],
         textTransform: 'capitalize',
-        fontWeight: '600',
+        fontWeight: '700',
     },
     profileStats: {
         flexDirection: 'row',
+        marginTop: isMobile ? 18 : 0,
+        flexWrap: isMobile ? 'wrap' : 'nowrap',
     },
     statItem: {
         alignItems: 'center',
-        marginLeft: 24,
+        marginLeft: isMobile ? 0 : 22,
+        marginRight: isMobile ? 18 : 0,
+        marginBottom: isMobile ? 12 : 0,
     },
     statValue: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.neutral[900],
+        fontSize: 22,
+        fontWeight: '800',
+        color: adminTheme.title,
     },
     statLabel: {
         fontSize: 12,
-        color: colors.neutral[500],
+        color: adminTheme.textMuted,
+        fontWeight: '600',
     },
     tabs: {
         flexDirection: 'row',
-        marginBottom: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.border,
+        marginBottom: 14,
     },
     tab: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        marginRight: 16,
+        paddingVertical: 9,
+        paddingHorizontal: 12,
+        marginRight: 10,
+        borderRadius: 11,
+        borderWidth: 1,
+        borderColor: '#DFE7FA',
+        backgroundColor: '#F4F8FF',
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     activeTab: {
-        borderBottomWidth: 2,
-        borderBottomColor: colors.primary[500],
+        backgroundColor: adminTheme.accent,
+        borderColor: adminTheme.accent,
     },
     tabText: {
         fontSize: 14,
-        color: colors.neutral[500],
-        fontWeight: '500',
+        color: adminTheme.textMuted,
+        fontWeight: '700',
+        marginLeft: 6,
     },
     activeTabText: {
-        color: colors.primary[500],
-        fontWeight: '600',
+        color: '#FFFFFF',
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
-        color: colors.neutral[900],
+        fontWeight: '800',
+        color: adminTheme.title,
         marginTop: 24,
         marginBottom: 16,
     },
     listContainer: {
-        backgroundColor: colors.surface,
+        backgroundColor: 'rgba(255,255,255,0.95)',
         borderRadius: 16,
-        padding: 16,
+        padding: 12,
         borderWidth: 1,
-        borderColor: colors.border,
+        borderColor: '#DFE7FA',
     },
     listItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 12,
+        paddingHorizontal: 8,
+        borderRadius: 10,
         borderBottomWidth: 1,
-        borderBottomColor: colors.neutral[100],
+        borderBottomColor: '#E9EEFB',
+    },
+    listItemAlt: {
+        backgroundColor: '#F3F7FF',
     },
     itemTitle: {
         fontSize: 14,
-        color: colors.neutral[700],
+        color: adminTheme.textStrong,
         flex: 1,
+        fontWeight: '500',
     },
     itemRight: {
         flexDirection: 'row',
@@ -340,22 +374,25 @@ const styles = StyleSheet.create({
     },
     itemScore: {
         fontSize: 14,
-        fontWeight: 'bold',
-        color: colors.neutral[900],
+        fontWeight: '800',
+        color: adminTheme.title,
     },
     itemDate: {
         fontSize: 12,
-        color: colors.neutral[400],
+        color: adminTheme.textMuted,
         marginLeft: 8,
     },
     statusBadge: {
         fontSize: 12,
-        fontWeight: '600',
+        fontWeight: '700',
         textTransform: 'uppercase',
     },
     emptyText: {
         textAlign: 'center',
-        color: colors.neutral[400],
+        color: adminTheme.textMuted,
         padding: 20,
+    },
+    content: {
+        paddingBottom: 28,
     },
 });

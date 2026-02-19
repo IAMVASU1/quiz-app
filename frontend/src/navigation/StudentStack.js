@@ -8,12 +8,24 @@ import LeaderboardScreen from '../screens/student/LeaderboardScreen';
 import AptitudeCategoryScreen from '../screens/student/AptitudeCategoryScreen';
 import TechnicalSubjectsScreen from '../screens/student/TechnicalSubjectsScreen';
 import QuizSolutionsScreen from '../screens/student/QuizSolutionsScreen';
+import useAppTheme from '../hooks/useAppTheme';
 
 const Stack = createNativeStackNavigator();
 
 export default function StudentStack() {
+    const { palette } = useAppTheme();
+
     return (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator
+            screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: palette.pageBg },
+                headerStyle: { backgroundColor: palette.navCard },
+                headerTintColor: palette.text,
+                headerTitleStyle: { color: palette.text, fontWeight: '700' },
+                headerShadowVisible: false,
+            }}
+        >
             <Stack.Screen name="StudentHome" component={StudentHomeScreen} />
             <Stack.Screen name="JoinQuiz" component={JoinQuizScreen} options={{ headerShown: true, title: 'Join Quiz' }} />
             <Stack.Screen name="QuizPlay" component={QuizPlayScreen} options={{ gestureEnabled: false }} />

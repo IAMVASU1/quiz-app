@@ -25,12 +25,23 @@ import QuizResultScreen from '../screens/student/QuizResultScreen';
 import AptitudeCategoryScreen from '../screens/student/AptitudeCategoryScreen';
 import TechnicalSubjectsScreen from '../screens/student/TechnicalSubjectsScreen';
 import QuizSolutionsScreen from '../screens/student/QuizSolutionsScreen';
+import useAppTheme from '../hooks/useAppTheme';
 
 const Stack = createNativeStackNavigator();
 
 export default function AdminStack() {
+    const { palette } = useAppTheme();
+
     return (
-        <Stack.Navigator>
+        <Stack.Navigator
+            screenOptions={{
+                contentStyle: { backgroundColor: palette.pageBg },
+                headerStyle: { backgroundColor: palette.navCard },
+                headerTintColor: palette.text,
+                headerTitleStyle: { color: palette.text, fontWeight: '700' },
+                headerShadowVisible: false,
+            }}
+        >
             <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ title: 'Admin Dashboard', headerShown: false }} />
             <Stack.Screen name="UserDetails" component={UserDetailsScreen} options={{ headerShown: false }} />
             <Stack.Screen name="UsersManagement" component={UsersManagementScreen} options={{ headerShown: false }} />

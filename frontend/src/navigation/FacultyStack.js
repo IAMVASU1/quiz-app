@@ -11,12 +11,23 @@ import EditQuizScreen from '../screens/faculty/EditQuizScreen';
 import EditQuestionScreen from '../screens/faculty/EditQuestionScreen';
 import BulkUploadScreen from '../screens/faculty/BulkUploadScreen';
 import QuizResultScreen from '../screens/student/QuizResultScreen';
+import useAppTheme from '../hooks/useAppTheme';
 
 const Stack = createNativeStackNavigator();
 
 export default function FacultyStack() {
+    const { palette } = useAppTheme();
+
     return (
-        <Stack.Navigator>
+        <Stack.Navigator
+            screenOptions={{
+                contentStyle: { backgroundColor: palette.pageBg },
+                headerStyle: { backgroundColor: palette.navCard },
+                headerTintColor: palette.text,
+                headerTitleStyle: { color: palette.text, fontWeight: '700' },
+                headerShadowVisible: false,
+            }}
+        >
             <Stack.Screen name="FacultyHome" component={FacultyHomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="CreateQuizChoice" component={CreateQuizChoiceScreen} options={{ title: 'Create Quiz' }} />
             <Stack.Screen name="CreateManualQuiz" component={CreateManualQuizScreen} options={{ title: 'Manual Quiz' }} />

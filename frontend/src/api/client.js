@@ -6,7 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // FOR PHYSICAL DEVICE: Use 'http://192.168.1.3:3000/api/v1' (This is your current LAN IP)
 // WHY NETWORK ERROR? 'localhost' on phone refers to the phone itself, not your PC.
 // const BASE_URL = process.env.API_URL || 'https://ugsf-backend-production.up.railway.app/api/v1';
-const BASE_URL = process.env.API_URL || 'http://10.222.208.112:3000/api/v1';
+const BASE_URL = process.env.API_URL || 'http://10.152.185.112:3000/api/v1';
+// const BASE_URL = process.env.API_URL || 'http://192.168.1.215:3000/api/v1';
 
 const client = axios.create({
   baseURL: BASE_URL,

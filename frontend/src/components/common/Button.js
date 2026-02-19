@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, TouchableOpacity, StyleSheet, ActivityIndicator, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../constants/colors';
+import useAppTheme from '../../hooks/useAppTheme';
 
 const Button = ({
     title,
@@ -15,6 +15,8 @@ const Button = ({
     style,
     textStyle,
 }) => {
+    const { palette } = useAppTheme();
+
     // Animation for press effect
     const scaleValue = new Animated.Value(1);
 
@@ -36,35 +38,35 @@ const Button = ({
         switch (variant) {
             case 'secondary':
                 return {
-                    backgroundColor: colors.primary[100],
+                    backgroundColor: palette.primarySoft,
                     borderColor: 'transparent',
-                    textColor: colors.primary[700],
+                    textColor: palette.primary,
                 };
             case 'outline':
                 return {
                     backgroundColor: 'transparent',
-                    borderColor: colors.primary[500],
+                    borderColor: palette.primary,
                     borderWidth: 1.5,
-                    textColor: colors.primary[600],
+                    textColor: palette.primary,
                 };
             case 'ghost':
                 return {
                     backgroundColor: 'transparent',
                     borderColor: 'transparent',
-                    textColor: colors.neutral[600],
+                    textColor: palette.textMuted,
                 };
             case 'danger':
                 return {
-                    backgroundColor: colors.danger[500],
+                    backgroundColor: palette.danger,
                     borderColor: 'transparent',
-                    textColor: colors.text.inverse,
+                    textColor: '#FFFFFF',
                 };
             case 'primary':
             default:
                 return {
-                    backgroundColor: colors.primary[600],
+                    backgroundColor: palette.primary,
                     borderColor: 'transparent',
-                    textColor: colors.text.inverse,
+                    textColor: '#FFFFFF',
                 };
         }
     };
@@ -117,6 +119,7 @@ const Button = ({
                         backgroundColor: variantStyles.backgroundColor,
                         borderColor: variantStyles.borderColor,
                         borderWidth: variant === 'outline' ? 1.5 : 0,
+                        shadowColor: palette.primary,
                         height: sizeStyles.height,
                         paddingHorizontal: sizeStyles.paddingHorizontal,
                         opacity: isDisabled ? 0.6 : 1,
@@ -169,7 +172,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 10,
-        shadowColor: colors.primary[900],
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 4,

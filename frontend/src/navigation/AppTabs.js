@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import useAuth from '../hooks/useAuth';
+import useAppTheme from '../hooks/useAppTheme';
 
 import StudentStack from './StudentStack';
 import FacultyStack from './FacultyStack';
@@ -13,6 +14,7 @@ const Tab = createBottomTabNavigator();
 
 export default function AppTabs() {
     const { user } = useAuth();
+    const { palette, isDark } = useAppTheme();
 
     const getRoleStack = () => {
         switch (user?.role) {
@@ -41,15 +43,32 @@ export default function AppTabs() {
 
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
-                tabBarActiveTintColor: '#2b6cb0',
-                tabBarInactiveTintColor: 'gray',
+                tabBarActiveTintColor: palette.primary,
+                tabBarInactiveTintColor: palette.tabInactive,
                 tabBarStyle: ((route) => {
                     const routeName = getFocusedRouteNameFromRoute(route) ?? "";
                     if (routeName === 'QuizPlay' || user?.role === 'admin') {
                         return { display: 'none' };
                     }
-                    return { display: 'flex' };
+                    return {
+                        display: 'flex',
+                        backgroundColor: palette.tabBar,
+                        borderTopColor: palette.tabBarBorder,
+                        height: 64,
+                        paddingBottom: 6,
+                        paddingTop: 4,
+                    };
                 })(route),
+                tabBarLabelStyle: {
+                    fontSize: 12,
+                    fontWeight: '600',
+                },
+                tabBarItemStyle: {
+                    borderRadius: 10,
+                    marginHorizontal: 4,
+                    marginVertical: 4,
+                },
+                tabBarActiveBackgroundColor: isDark ? 'rgba(135,152,255,0.12)' : 'rgba(79,102,248,0.1)',
             })}
         >
             <Tab.Screen name="Home" component={getRoleStack()} />
